@@ -35,8 +35,24 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 
 # typescript
 *.tsbuildinfo
 
 app-example
+
+# Agent
+agent/venv/
+agent/.env
+agent/__pycache__/
+*.pyc
+
+# Token server
+token-server/node_modules/
+token-server.log
+token-server.pid
+
+# Agent logs and PID
+agent.log
+agent.pid

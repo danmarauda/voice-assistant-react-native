@@ -1,0 +1,21 @@
+port: 7880
+rtc:
+  port_range_start: 50000
+  port_range_end: 60000
+  use_external_ip: false
+
+keys:
+  # API key and secret will be set via environment variables
+  # Format: LIVEKIT_KEYS=<api_key>:<api_secret>
+
+logging:
+  level: info
+
+room:
+  auto_create: true
+  empty_timeout: 300
+  max_participants: 100
+
+turn:
+  enabled: false
+
