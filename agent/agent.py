@@ -55,9 +55,12 @@ async def entrypoint(ctx: JobContext):
 
 if __name__ == "__main__":
     # Run the agent
+    # The agent will automatically join any room that is created
     cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,
+            # Accept jobs for any room
+            request_fnc=lambda _: True,
         ),
     )
 

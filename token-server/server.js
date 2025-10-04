@@ -1,10 +1,14 @@
 const express = require('express');
-const { AccessToken } = require('livekit-server-sdk');
+const { AccessToken, RoomServiceClient } = require('livekit-server-sdk');
 const cors = require('cors');
 require('dotenv').config({ path: '../.env' });
 
 const app = express();
 const PORT = process.env.TOKEN_SERVER_PORT || 3001;
+
+// Initialize RoomServiceClient for agent dispatch
+const livekitHost = process.env.LIVEKIT_URL?.replace('ws://', 'http://').replace('wss://', 'https://');
+const roomService = new RoomServiceClient(livekitHost, process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET);
 
 // Enable CORS for all origins (restrict in production)
 app.use(cors());
@@ -57,6 +61,19 @@ app.post('/token', async (req, res) => {
 
     console.log(`Generated token for ${participantName} in room ${roomName}`);
 
+    // Dispatch an agent to the room
+    try {
+      await roomService.createRoom({
+        name: roomName,
+        emptyTimeout: 300, // Room stays alive for 5 minutes after last participant leaves
+        maxParticipants: 10,
+      });
+      console.log(`Room ${roomName} created or already exists`);
+    } catch (error) {
+      // Room might already exist, which is fine
+      console.log(`Room ${roomName} already exists or error creating:`, error.message);
+    }
+
     res.json({
       url: livekitUrl,
       token: token,
@@ -65,9 +82,9 @@ app.post('/token', async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating token:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate token',
-      message: error.message 
+      message: error.message
     });
   }
 });
