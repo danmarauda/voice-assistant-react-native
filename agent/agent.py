@@ -53,14 +53,22 @@ async def entrypoint(ctx: JobContext):
     logger.info("Voice assistant started successfully")
 
 
+async def request_fnc(job_request):
+    """
+    Accept all job requests.
+    This function is called when LiveKit wants to dispatch an agent to a room.
+    """
+    logger.info(f"Accepting job request for room: {job_request.room.name}")
+    await job_request.accept()
+
+
 if __name__ == "__main__":
     # Run the agent
     # The agent will automatically join any room that is created
     cli.run_app(
         WorkerOptions(
             entrypoint_fnc=entrypoint,
-            # Accept jobs for any room
-            request_fnc=lambda _: True,
+            request_fnc=request_fnc,
         ),
     )
 
