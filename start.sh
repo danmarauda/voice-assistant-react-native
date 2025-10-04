@@ -91,6 +91,10 @@ else
     echo -e "${GREEN}✓ Token server dependencies already installed${NC}\n"
 fi
 
+# Kill any existing token server
+pkill -f "node.*server.js" 2>/dev/null || true
+sleep 1
+
 # Start token server in background
 echo -e "${YELLOW}Starting token server...${NC}"
 npm start > ../token-server.log 2>&1 &
@@ -191,6 +195,15 @@ fi
 
 # Start the agent if OpenAI key is set
 if [ "$OPENAI_KEY_SET" = true ]; then
+    # Kill any existing agent
+    if [ -f ../agent.pid ]; then
+        OLD_PID=$(cat ../agent.pid)
+        kill $OLD_PID 2>/dev/null || true
+        rm ../agent.pid
+    fi
+    pkill -f "python.*agent.py" 2>/dev/null || true
+    sleep 1
+
     echo -e "${YELLOW}Starting voice agent...${NC}"
     python agent.py start > ../agent.log 2>&1 &
     AGENT_PID=$!
