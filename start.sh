@@ -250,21 +250,74 @@ else
 fi
 
 echo -e ""
-echo -e "${GREEN}Next Steps:${NC}"
+
+# Ask if user wants to start the React Native app
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}Step 5: Starting React Native App${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo -e ""
 
 if [ "$OPENAI_KEY_SET" = false ]; then
-    echo -e "  ${YELLOW}1. Add your OpenAI API key to agent/.env${NC}"
-    echo -e "  ${YELLOW}2. Start the agent manually:${NC}"
-    echo -e "     ${YELLOW}cd agent${NC}"
-    echo -e "     ${YELLOW}source venv/bin/activate${NC}"
-    echo -e "     ${YELLOW}python agent.py start${NC}"
-    echo -e "  ${YELLOW}3. Run the app:${NC}"
-else
-    echo -e "  ${YELLOW}1. Run the app:${NC}"
+    echo -e "${YELLOW}Note: Voice agent is not running. Add your OpenAI API key to agent/.env to enable it.${NC}"
+    echo -e ""
 fi
 
-echo -e "     ${YELLOW}npx expo run:ios${NC}  # or npx expo run:android"
+read -p "$(echo -e ${YELLOW}Would you like to start the React Native app now? [Y/n]: ${NC})" -n 1 -r START_APP
+echo
+START_APP=${START_APP:-Y}
+
+if [[ $START_APP =~ ^[Yy]$ ]]; then
+    echo -e ""
+    echo -e "${BLUE}Choose platform:${NC}"
+    echo -e "  ${YELLOW}1)${NC} iOS (Simulator)"
+    echo -e "  ${YELLOW}2)${NC} iOS (Physical Device)"
+    echo -e "  ${YELLOW}3)${NC} Android"
+    echo -e "  ${YELLOW}4)${NC} Skip for now"
+    echo -e ""
+    read -p "$(echo -e ${YELLOW}Enter choice [1-4]: ${NC})" PLATFORM_CHOICE
+
+    case $PLATFORM_CHOICE in
+        1)
+            echo -e "${BLUE}Starting iOS Simulator...${NC}"
+            npx expo run:ios
+            ;;
+        2)
+            echo -e "${BLUE}Starting on Physical Device...${NC}"
+            echo -e "${YELLOW}Make sure your device is connected via USB${NC}"
+            npx expo run:ios --device
+            ;;
+        3)
+            echo -e "${BLUE}Starting Android...${NC}"
+            npx expo run:android
+            ;;
+        4|*)
+            echo -e "${YELLOW}Skipping app startup${NC}"
+            ;;
+    esac
+fi
+
 echo -e ""
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}All Services Running! 🎉${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo -e ""
+
+if [[ ! $START_APP =~ ^[Yy]$ ]] || [[ $PLATFORM_CHOICE == "4" ]]; then
+    echo -e "${GREEN}To start the app manually:${NC}"
+    echo -e "  ${YELLOW}npx expo run:ios${NC}          # iOS Simulator"
+    echo -e "  ${YELLOW}npx expo run:ios --device${NC} # Physical Device"
+    echo -e "  ${YELLOW}npx expo run:android${NC}      # Android"
+    echo -e ""
+fi
+
+if [ "$OPENAI_KEY_SET" = false ]; then
+    echo -e "${YELLOW}To enable the voice agent:${NC}"
+    echo -e "  ${YELLOW}1. Add your OpenAI API key to agent/.env${NC}"
+    echo -e "  ${YELLOW}2. Start the agent:${NC}"
+    echo -e "     ${YELLOW}cd agent && source venv/bin/activate && python agent.py start${NC}"
+    echo -e ""
+fi
+
 echo -e "${GREEN}Useful Commands:${NC}"
 echo -e "  • View LiveKit logs: ${YELLOW}docker-compose logs -f livekit-server${NC}"
 echo -e "  • View token server logs: ${YELLOW}tail -f token-server.log${NC}"
